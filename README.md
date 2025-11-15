@@ -2,7 +2,9 @@
 
 # Web Engineering 2025-2026 / Lab 5: Integration and SOA
 
-A Spring Boot + Kotlin starter demonstrating Enterprise Integration Patterns using Spring Integration. Complete the tasks in `docs/GUIDE.md` to analyze the starter code, create EIP diagrams, and implement the correct integration flow.
+A Spring Boot + Kotlin starter demonstrating Enterprise Integration Patterns using Spring Integration.
+Complete the tasks in `docs/GUIDE.md` to analyze the starter code, create EIP diagrams, 
+and implement the correct integration flow.
 
 ## Tech stack
 

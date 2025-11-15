@@ -41,32 +41,46 @@ class IntegrationApplication(
      * Creates an atomic integer source that generates sequential numbers.
      */
     @Bean
+    @Suppress("unused")
     fun integerSource(): AtomicInteger = AtomicInteger()
 
     /**
      * Defines a publish-subscribe channel for even numbers.
-     * Multiple subscribers can receive messages from this channel.
+     * Mul@Suppress("unused")tiple subscribers can receive messages from this channel.
      */
     @Bean
-    fun evenChannel(): PublishSubscribeChannelSpec<*> = MessageChannels.publishSubscribe()
+    @Suppress("unused")
+    fun oddChannel(): PublishSubscribeChannelSpec<*> = MessageChannels.publishSubscribe()
 
     /**
      * Main integration flow that polls the integer source and routes messages.
      * Polls every 100ms and routes based on even/odd logic.
      */
     @Bean
+    @Suppress("unused")
     fun myFlow(integerSource: AtomicInteger): IntegrationFlow =
         integrationFlow(
             source = { integerSource.getAndIncrement() },
             options = { poller(Pollers.fixedRate(100)) },
         ) {
             transform { num: Int ->
-                logger.info("📥 Source generated number: {}", num)
+                logger.info("Source generated number: {}", num)
                 num
             }
             route { p: Int ->
+                val channel = "numberChannel"
+                logger.info("Router: {} → {}", p, channel)
+                channel
+            }
+        }
+
+    @Bean
+    @Suppress("unused")
+    fun numberFlow(): IntegrationFlow =
+        integrationFlow("numberChannel") {
+            route { p: Int ->
                 val channel = if (p % 2 == 0) "evenChannel" else "oddChannel"
-                logger.info("🔀 Router: {} → {}", p, channel)
+                logger.info("Router: {} → {}", p, channel)
                 channel
             }
         }
@@ -76,14 +90,15 @@ class IntegrationApplication(
      * Transforms integers to strings and logs the result.
      */
     @Bean
+    @Suppress("unused")
     fun evenFlow(): IntegrationFlow =
         integrationFlow("evenChannel") {
             transform { obj: Int ->
-                logger.info("  ⚙️  Even Transformer: {} → 'Number {}'", obj, obj)
+                logger.info("Even Transformer: {} → 'Number {}'", obj, obj)
                 "Number $obj"
             }
             handle { p ->
-                logger.info("  ✅ Even Handler: Processed [{}]", p.payload)
+                logger.info("Even Handler: Processed [{}]", p.payload)
             }
         }
 
@@ -93,19 +108,20 @@ class IntegrationApplication(
      * Note: Examine the filter condition carefully.
      */
     @Bean
+    @Suppress("unused")
     fun oddFlow(): IntegrationFlow =
         integrationFlow("oddChannel") {
             filter { p: Int ->
-                val passes = p % 2 == 0
-                logger.info("  🔍 Odd Filter: checking {} → {}", p, if (passes) "PASS" else "REJECT")
+                val passes = p % 2 != 0
+                logger.info("Odd Filter: checking {} → {}", p, if (passes) "PASS" else "REJECT")
                 passes
             } // , { discardChannel("discardChannel") })
             transform { obj: Int ->
-                logger.info("  ⚙️  Odd Transformer: {} → 'Number {}'", obj, obj)
+                logger.info("Odd Transformer: {} → 'Number {}'", obj, obj)
                 "Number $obj"
             }
             handle { p ->
-                logger.info("  ✅ Odd Handler: Processed [{}]", p.payload)
+                logger.info("Odd Handler: Processed [{}]", p.payload)
             }
         }
 
@@ -113,10 +129,11 @@ class IntegrationApplication(
      * Integration flow for handling discarded messages.
      */
     @Bean
+    @Suppress("unused")
     fun discarded(): IntegrationFlow =
         integrationFlow("discardChannel") {
             handle { p ->
-                logger.info("  🗑️  Discard Handler: [{}]", p.payload)
+                logger.info("Discard Handler: [{}]", p.payload)
             }
         }
 
@@ -124,9 +141,10 @@ class IntegrationApplication(
      * Scheduled task that periodically sends negative random numbers via the gateway.
      */
     @Scheduled(fixedRate = 1000)
+    @Suppress("unused")
     fun sendNumber() {
         val number = -Random.nextInt(100)
-        logger.info("🚀 Gateway injecting: {}", number)
+        logger.info("Gateway injecting: {}", number)
         sendNumber.sendNumber(number)
     }
 }
@@ -136,10 +154,11 @@ class IntegrationApplication(
  * Uses @ServiceActivator annotation to connect to the integration flow.
  */
 @Component
+@Suppress("unused")
 class SomeService {
     @ServiceActivator(inputChannel = "oddChannel")
     fun handle(p: Any) {
-        logger.info("  🔧 Service Activator: Received [{}] (type: {})", p, p.javaClass.simpleName)
+        logger.info("Service Activator: Received [{}] (type: {})", p, p.javaClass.simpleName)
     }
 }
 
@@ -150,7 +169,7 @@ class SomeService {
  */
 @MessagingGateway
 interface SendNumber {
-    @Gateway(requestChannel = "evenChannel")
+    @Gateway(requestChannel = "numberChannel")
     fun sendNumber(number: Int)
 }
 
