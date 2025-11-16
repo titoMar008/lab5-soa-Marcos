@@ -35,7 +35,7 @@ private val logger = LoggerFactory.getLogger("soa.CronOddEvenDemo")
 @EnableIntegration
 @EnableScheduling
 class IntegrationApplication(
-    private val sendNumber: SendNumber
+    private val sendNumber: SendNumber,
 ) {
     /**
      * Creates an atomic integer source that generates sequential numbers.
